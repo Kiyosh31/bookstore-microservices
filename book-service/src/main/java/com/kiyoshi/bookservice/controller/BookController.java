@@ -1,6 +1,7 @@
 package com.kiyoshi.bookservice.controller;
 
 import com.kiyoshi.bookservice.entity.Book;
+import com.kiyoshi.bookservice.entity.BookRequest;
 import com.kiyoshi.bookservice.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class BookController {
     private BookService service;
 
     @PostMapping
-    public ResponseEntity<Book> createBook(@Valid @RequestBody Book book){
+    public ResponseEntity<Book> createBook(@Valid @RequestBody BookRequest book){
         return new ResponseEntity<>(service.createBook(book), HttpStatus.CREATED);
     }
 

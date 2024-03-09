@@ -3,6 +3,7 @@ package com.kiyoshi.bookservice.service.impl;
 import com.kiyoshi.basedomains.entity.Stock;
 import com.kiyoshi.basedomains.entity.StockEvent;
 import com.kiyoshi.bookservice.entity.Book;
+import com.kiyoshi.bookservice.entity.BookRequest;
 import com.kiyoshi.bookservice.exception.ResourceAlreadyExistException;
 import com.kiyoshi.bookservice.exception.ResourceNotFoundException;
 import com.kiyoshi.bookservice.kafka.StockProducer;
@@ -28,15 +29,15 @@ public class BookServiceImpl implements BookService {
 
 
     @Override
-    public Book createBook(Book book) {
-        Optional<Book> found = repository.finByName(book.getName());
+    public Book createBook(BookRequest book) {
+        Optional<Book> found = repository.finByName(book.getBook().getName());
 
         if(found.isPresent()) {
             throw new ResourceAlreadyExistException("Book already exists");
         }
 
         // save the new book to db
-        Book createdBook = repository.save(book);
+        Book createdBook = repository.save(book.getBook());
 
         // create event
         StockEvent orderEvent = new StockEvent();
@@ -46,7 +47,7 @@ public class BookServiceImpl implements BookService {
         Stock stock = new Stock();
         stock.setBookId(createdBook.getId());
         stock.setBookName(createdBook.getName());
-        stock.setQuantity(10);
+        stock.setQuantity(book.getQuantity());
         orderEvent.setStock(stock);
 
         // dispatch event
