@@ -1,10 +1,15 @@
 package com.kiyoshi.bookservice.service.impl;
 
+import com.kiyoshi.basedomains.entity.Stock;
+import com.kiyoshi.basedomains.entity.StockEvent;
 import com.kiyoshi.bookservice.entity.Book;
 import com.kiyoshi.bookservice.exception.ResourceAlreadyExistException;
 import com.kiyoshi.bookservice.exception.ResourceNotFoundException;
+import com.kiyoshi.bookservice.kafka.StockProducer;
 import com.kiyoshi.bookservice.repository.BookRepository;
 import com.kiyoshi.bookservice.service.BookService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +21,11 @@ public class BookServiceImpl implements BookService {
     @Autowired
     private BookRepository repository;
 
+    @Autowired
+    private StockProducer producer;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StockEvent.class);
+
 
     @Override
     public Book createBook(Book book) {
@@ -26,8 +36,24 @@ public class BookServiceImpl implements BookService {
         }
 
         // save the new book to db
-        return repository.save(book);
+        Book createdBook = repository.save(book);
 
+        // create event
+        StockEvent orderEvent = new StockEvent();
+        orderEvent.setStatus("PENDING");
+        orderEvent.setMessage("Order status is pending state");
+
+        Stock stock = new Stock();
+        stock.setBookId(createdBook.getId());
+        stock.setBookName(createdBook.getName());
+        stock.setQuantity(10);
+        orderEvent.setStock(stock);
+
+        // dispatch event
+        producer.sendMessage(orderEvent);
+        LOGGER.info(String.format("Stock event send from book service => %s", orderEvent.toString()));
+
+        return createdBook;
     }
 
     @Override
