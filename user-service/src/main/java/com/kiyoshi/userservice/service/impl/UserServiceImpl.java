@@ -1,8 +1,8 @@
 package com.kiyoshi.userservice.service.impl;
 
+import com.kiyoshi.basedomains.exception.ResourceAlreadyExistException;
+import com.kiyoshi.basedomains.exception.ResourceNotFoundException;
 import com.kiyoshi.userservice.entity.User;
-import com.kiyoshi.userservice.exception.ResourceAlreadyExistException;
-import com.kiyoshi.userservice.exception.ResourceNotFoundException;
 import com.kiyoshi.userservice.repository.UserRepository;
 import com.kiyoshi.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

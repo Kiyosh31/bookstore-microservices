@@ -1,4 +1,4 @@
-package com.kiyoshi.bookservice.exception;
+package com.kiyoshi.basedomains.exception;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

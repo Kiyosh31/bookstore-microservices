@@ -1,4 +1,4 @@
-package com.kiyoshi.userservice.exception;
+package com.kiyoshi.basedomains.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

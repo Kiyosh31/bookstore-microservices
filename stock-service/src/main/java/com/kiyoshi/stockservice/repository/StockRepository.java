@@ -2,7 +2,6 @@ package com.kiyoshi.stockservice.repository;
 
 import com.kiyoshi.stockservice.entity.Stock;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
