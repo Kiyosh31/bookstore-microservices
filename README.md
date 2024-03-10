@@ -13,8 +13,12 @@ Run the services in order
 3. all services
 4. api-gateway
 
-# Info
+# Run
+In root folder there is a `.run` folder you can import in intellij idea to run all microservices at once.
 
+Otherwise, run services as described in usage section
+
+# Info
 > Note: once running the project
 
 - [Eureka available here](http://localhost:8761/)

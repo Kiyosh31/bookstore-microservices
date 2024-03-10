@@ -1,4 +1,4 @@
-package com.kiyoshi.bookservice.kafka;
+package com.kiyoshi.orderservice.kafka;
 
 import com.kiyoshi.basedomains.entity.StockEvent;
 import org.apache.kafka.clients.admin.NewTopic;

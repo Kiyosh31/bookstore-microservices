@@ -1,5 +1,6 @@
 package com.kiyoshi.bookservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -7,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "book")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Book {
     @Id
     private String id;
@@ -22,7 +24,4 @@ public class Book {
 
     @NotNull(message = "Missing author")
     private String author;
-
-    @NotNull(message = "Missing price")
-    private long price;
 }

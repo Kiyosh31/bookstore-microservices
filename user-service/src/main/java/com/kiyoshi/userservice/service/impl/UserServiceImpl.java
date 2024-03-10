@@ -23,6 +23,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceAlreadyExistException("User already exists");
         }
 
+        user.setId(null);
         return repository.save(user);
     }
 

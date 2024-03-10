@@ -1,5 +1,6 @@
 package com.kiyoshi.bookservice.service.impl;
 
+import com.kiyoshi.basedomains.entity.Actions;
 import com.kiyoshi.basedomains.entity.Stock;
 import com.kiyoshi.basedomains.entity.StockEvent;
 import com.kiyoshi.bookservice.entity.Book;
@@ -30,6 +31,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Book createBook(BookRequest book) {
+        book.getBook().setId(null);
         Optional<Book> found = repository.finByName(book.getBook().getName());
 
         if(found.isPresent()) {
@@ -40,19 +42,21 @@ public class BookServiceImpl implements BookService {
         Book createdBook = repository.save(book.getBook());
 
         // create event
-        StockEvent orderEvent = new StockEvent();
-        orderEvent.setStatus("PENDING");
-        orderEvent.setMessage("Order status is pending state");
+        StockEvent event = new StockEvent();
+        event.setStatus("PENDING");
+        event.setMessage("Creating stock in database");
+        event.setAction(Actions.CREATE);
 
         Stock stock = new Stock();
         stock.setBookId(createdBook.getId());
         stock.setBookName(createdBook.getName());
-        stock.setQuantity(book.getQuantity());
-        orderEvent.setStock(stock);
+        stock.setAvailableQuantity(book.getAvailableQuantity());
+        stock.setPrice(book.getPrice());
+        event.setStock(stock);
 
         // dispatch event
-        producer.sendMessage(orderEvent);
-        LOGGER.info(String.format("Stock event send from book service => %s", orderEvent.toString()));
+        producer.sendMessage(event);
+        LOGGER.info(String.format("Stock event send from book service => %s", event.toString()));
 
         return createdBook;
     }

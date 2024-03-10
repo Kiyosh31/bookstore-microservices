@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class Stock {
     private String bookId;
     private String bookName;
-    private int quantity;
+    private Integer availableQuantity;
+    private Long price;
 }

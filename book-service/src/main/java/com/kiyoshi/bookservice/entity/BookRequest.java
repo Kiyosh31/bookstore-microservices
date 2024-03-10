@@ -9,5 +9,8 @@ public class BookRequest {
     private Book book;
 
     @NotNull(message = "Missing quantity")
-    private Integer quantity;
+    private Integer availableQuantity;
+
+    @NotNull(message = "Missing price")
+    private Long price;
 }
