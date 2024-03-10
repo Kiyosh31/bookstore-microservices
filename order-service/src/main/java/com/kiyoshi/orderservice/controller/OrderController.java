@@ -21,13 +21,12 @@ public class OrderController {
         return new ResponseEntity<>(service.createOrder(order), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrder(@PathVariable String id) {
-
-        return new ResponseEntity<>(service.getOrder(id), HttpStatus.FOUND);
+    @GetMapping("/")
+    public ResponseEntity<Order> getOrder(@RequestParam String userId, @RequestParam String orderId) {
+        return new ResponseEntity<>(service.getOrder(userId, orderId), HttpStatus.FOUND);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/all/{userId}")
     public ResponseEntity<List<Order>> getAllOrders(@PathVariable String userId) {
         return new ResponseEntity<>(service.getAllOrders(userId), HttpStatus.FOUND);
     }

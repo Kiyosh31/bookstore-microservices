@@ -3,6 +3,7 @@ package com.kiyoshi.orderservice.service.impl;
 import com.kiyoshi.basedomains.entity.Actions;
 import com.kiyoshi.basedomains.entity.Book;
 import com.kiyoshi.basedomains.entity.StockEvent;
+import com.kiyoshi.basedomains.exception.BadRequestException;
 import com.kiyoshi.basedomains.exception.ResourceNotFoundException;
 import com.kiyoshi.orderservice.entity.Order;
 import com.kiyoshi.orderservice.entity.User;
@@ -69,11 +70,18 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order getOrder(String id) {
-        Optional<Order> found = repository.findById(id);
+    public Order getOrder(String userId, String orderId) {
+        // check the user exists
+        User user = getUserById(userId);
+        if(user == null) {
+            throw new ResourceNotFoundException("User does not exist", "id", userId);
+        }
+
+        // Check the order exists
+        Optional<Order> found = repository.findById(orderId);
 
         if(found.isEmpty()) {
-            throw new ResourceNotFoundException("Order not found", "id", id);
+            throw new ResourceNotFoundException("Order not found", "id", orderId);
         }
 
         return found.get();
@@ -81,7 +89,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Order> getAllOrders(String userId) {
-        Optional<List<Order>> found = repository.findAllByUserId(userId);
+        // check the user exists
+        User user = getUserById(userId);
+        if(user == null) {
+            throw new ResourceNotFoundException("User does not exist", "id", userId);
+        }
+
+        Optional<List<Order>> found = repository.findByUserIdIn(userId);
 
         if(found.isEmpty()) {
             throw new ResourceNotFoundException("This user don't have orders placed", "userId", userId);
