@@ -77,6 +77,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
         order.setTotal(total);
+        order.setCreatedAt(LocalDateTime.now());
 
         // place order (save it to DB)
         Order newOrder = repository.save(order);
