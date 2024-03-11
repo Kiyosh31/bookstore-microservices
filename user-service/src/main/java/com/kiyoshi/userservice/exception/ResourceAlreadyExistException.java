@@ -1,4 +1,4 @@
-package com.kiyoshi.basedomains.exception;
+package com.kiyoshi.userservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

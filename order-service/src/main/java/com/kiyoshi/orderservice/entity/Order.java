@@ -20,8 +20,8 @@ public class Order {
     @NotNull(message = "Missing userId")
     private String userId;
 
-    @NotNull(message = "Missing order")
-    private List<Book> order;
+    @NotNull(message = "Missing books")
+    private List<Book> books;
 
     private Long total;
 

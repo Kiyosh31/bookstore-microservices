@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Stock {
+    private String id;
     private String bookId;
     private String bookName;
     private Integer availableQuantity;

@@ -2,8 +2,8 @@ package com.kiyoshi.stockservice.kafka;
 
 import com.kiyoshi.basedomains.entity.Book;
 import com.kiyoshi.basedomains.entity.StockEvent;
-import com.kiyoshi.basedomains.exception.ResourceNotFoundException;
 import com.kiyoshi.stockservice.entity.Stock;
+import com.kiyoshi.stockservice.exception.ResourceNotFoundException;
 import com.kiyoshi.stockservice.repository.StockRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +56,6 @@ public class StockConsumer {
 
         // get a list from db
         Optional<List<Stock>> books = repository.findByBookIdIn(bookIds);
-
         if(books.isEmpty()) {
             throw new ResourceNotFoundException("No books found", "id", "");
         }

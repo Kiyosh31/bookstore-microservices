@@ -2,7 +2,6 @@ package com.kiyoshi.orderservice.repository;
 
 import com.kiyoshi.orderservice.entity.Order;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

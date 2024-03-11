@@ -1,4 +1,4 @@
-package com.kiyoshi.basedomains.exception;
+package com.kiyoshi.bookservice.exception;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,18 +38,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 exception.getMessage(),
                 webRequest.getDescription(false),
                 "RESOURCE_ALREADY_EXISTS"
-        );
-
-        return new ResponseEntity<>(errorDetail, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<ErrorDetail> handleBadRequestException(BadRequestException exception, WebRequest webRequest) {
-        ErrorDetail errorDetail = new ErrorDetail(
-                LocalDateTime.now(),
-                exception.getMessage(),
-                webRequest.getDescription(false),
-                "BAD_REQUEST"
         );
 
         return new ResponseEntity<>(errorDetail, HttpStatus.BAD_REQUEST);

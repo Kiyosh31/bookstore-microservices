@@ -1,6 +1,7 @@
 package com.kiyoshi.stockservice.controller;
 
-import com.kiyoshi.stockservice.entity.StockRequest;
+import com.kiyoshi.basedomains.entity.Book;
+import com.kiyoshi.stockservice.entity.Stock;
 import com.kiyoshi.stockservice.service.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,8 +19,8 @@ public class StockController {
     @Autowired
     private StockService service;
 
-    @PostMapping("/isStockAvailable")
-    public ResponseEntity<Boolean> getIsStockAvailable(@RequestBody List<StockRequest> request) {
-        return new ResponseEntity<>(service.getIsStockAvailable(request), HttpStatus.FOUND);
+    @PostMapping("/stockAvailable")
+    public ResponseEntity<List<Stock>> getIsStockAvailable(@RequestBody List<Book> request) {
+        return new ResponseEntity<>(service.stockAvailable(request), HttpStatus.OK);
     }
 }
