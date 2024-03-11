@@ -29,3 +29,4 @@ Otherwise, run services as described in usage section
 - [book-service](http://localhost:8082/swagger-ui/index.html)
 - [order-service](http://localhost:8084/swagger-ui/index.html)
 - [stock-service](http://localhost:8083/swagger-ui/index.html)
+- [notification-service](http://localhost:8085/swagger-ui/index.html)
