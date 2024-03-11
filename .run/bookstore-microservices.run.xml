@@ -8,6 +8,7 @@
     <toRun name="OrderServiceApplication" type="Application" />
     <toRun name="StockServiceApplication" type="Application" />
     <toRun name="UserServiceApplication" type="Application" />
+    <toRun name="docker-compose.yml: Compose Deployment" type="docker-deploy" />
     <method v="2" />
   </configuration>
 </component>

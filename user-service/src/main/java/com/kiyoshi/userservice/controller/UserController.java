@@ -1,6 +1,8 @@
 package com.kiyoshi.userservice.controller;
 
 import com.kiyoshi.userservice.entity.User;
+import com.kiyoshi.userservice.entity.UserSigningRequest;
+import com.kiyoshi.userservice.entity.UserSigningResponse;
 import com.kiyoshi.userservice.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +16,14 @@ public class UserController {
     @Autowired
     private UserService service;
 
-    @PostMapping
+    @PostMapping("/signup")
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         return new ResponseEntity<>(service.createUser(user), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/signing")
+    public ResponseEntity<String> signingUser(@Valid @RequestBody UserSigningRequest request) {
+        return new ResponseEntity<>("hey!", HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
