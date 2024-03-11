@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository repository;
@@ -53,7 +52,6 @@ public class OrderServiceImpl implements OrderService {
         if(validStock.isEmpty()) {
             throw new ResourceNotFoundException("Stock is not enough to fulfill the order", "ids", "");
         }
-        log.info("jajaja: {}", validStock);
 
         // delete request invalid ids (doesn't exist on stock)
         List<Book> cleanedBookIds = new ArrayList<>();
