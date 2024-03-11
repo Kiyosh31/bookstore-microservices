@@ -7,12 +7,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 
 @Configuration
-public class KafkaTopicConfig {
-    @Value("${spring.kafka.topic.name}")
-    private String topicName;
+public class KafkaNotificationTopicConfig {
+
+    @Value("${spring.kafka.topic.notification-topic-name}")
+    private String notificationTopicName;
 
     @Bean
-    public NewTopic topic() {
-        return TopicBuilder.name(topicName).build();
+    public NewTopic notificationTopic() {
+        return TopicBuilder.name(notificationTopicName).build();
     }
+
 }

@@ -1,16 +1,13 @@
 package com.kiyoshi.orderservice.service.impl;
 
-import com.kiyoshi.basedomains.entity.Actions;
-import com.kiyoshi.basedomains.entity.Book;
-import com.kiyoshi.basedomains.entity.Stock;
-import com.kiyoshi.basedomains.entity.StockEvent;
+import com.kiyoshi.basedomains.entity.*;
 import com.kiyoshi.orderservice.entity.Order;
 import com.kiyoshi.orderservice.entity.User;
 import com.kiyoshi.orderservice.exception.ResourceNotFoundException;
+import com.kiyoshi.orderservice.kafka.NotificationProducer;
 import com.kiyoshi.orderservice.kafka.StockProducer;
 import com.kiyoshi.orderservice.repository.OrderRepository;
 import com.kiyoshi.orderservice.service.OrderService;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +16,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -32,9 +30,14 @@ public class OrderServiceImpl implements OrderService {
     private RestTemplate restTemplate;
 
     @Autowired
-    private StockProducer producer;
+    private StockProducer stockProducer;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StockEvent.class);
+    @Autowired
+    private NotificationProducer notificationProducer;
+
+    private static final Logger STOCK_LOGGER = LoggerFactory.getLogger(StockEvent.class);
+
+    private static final Logger NOTIFICATION_LOGGER = LoggerFactory.getLogger(NotificationEvent.class);
 
 
     @Override
@@ -79,9 +82,14 @@ public class OrderServiceImpl implements OrderService {
         Order newOrder = repository.save(order);
 
         // send event to subtract quantity in stock (kafka)
-        StockEvent event = createStockEvent(order);
-        producer.sendMessage(event);
-        LOGGER.info(String.format("Stock event send from order service => %s", event.toString()));
+        StockEvent stockEvent = createStockEvent(order);
+        stockProducer.sendMessage(stockEvent);
+        STOCK_LOGGER.info(String.format("Stock event send from order service => %s", stockEvent.toString()));
+
+        // send event to notification service (kafka)
+        NotificationEvent notificationEvent = createNotificationEvent(order.getUserId());
+        notificationProducer.sendMessage(notificationEvent);
+        NOTIFICATION_LOGGER.info(String.format("Notification event send from order service => %s", notificationEvent.toString()));
 
         // return order created
         return newOrder;
@@ -103,6 +111,21 @@ public class OrderServiceImpl implements OrderService {
 
         event.setBooks(booksToSubtract);
         return event;
+    }
+
+    private static NotificationEvent createNotificationEvent(String userId) {
+        NotificationEvent notificationEvent = new NotificationEvent();
+        notificationEvent.setStatus("PENDING");
+        notificationEvent.setMessage("Creating new notification");
+
+        Notification notification = new Notification();
+        notification.setTitle("Order placed successfully");
+        notification.setDescription("Order was placed successfully with all info");
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setUserId(userId);
+
+        notificationEvent.setNotification(notification);
+        return notificationEvent;
     }
 
     @Override

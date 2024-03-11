@@ -13,12 +13,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class StockProducer {
     private static final Logger LOGGER = LoggerFactory.getLogger(StockProducer.class);
-    private final NewTopic topic;
+    private final NewTopic stockTopic;
 
     private final KafkaTemplate<String, StockEvent> kafkaTemplate;
 
-    public StockProducer(NewTopic topic, KafkaTemplate<String, StockEvent> kafkaTemplate) {
-        this.topic = topic;
+    public StockProducer(NewTopic stockTopic, KafkaTemplate<String, StockEvent> kafkaTemplate) {
+        this.stockTopic = stockTopic;
         this.kafkaTemplate = kafkaTemplate;
     }
 
@@ -27,7 +27,7 @@ public class StockProducer {
 
         Message<StockEvent> message = MessageBuilder
                 .withPayload(event)
-                .setHeader(KafkaHeaders.TOPIC, topic.name())
+                .setHeader(KafkaHeaders.TOPIC, stockTopic.name())
                 .build();
 
         kafkaTemplate.send(message);
