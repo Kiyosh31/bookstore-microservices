@@ -27,9 +27,10 @@ public class NotificationConsumer {
 
         //save event to db
         Notification newNotification = new Notification();
+        newNotification.setUserId(event.getNotification().getUserId());
         newNotification.setTitle(event.getNotification().getTitle());
         newNotification.setDescription(event.getNotification().getDescription());
-        newNotification.setCreatedAt(LocalDateTime.now());
+        newNotification.setCreatedAt(event.getNotification().getCreatedAt());
         repository.save(newNotification);
 
         //send notification to FE
