@@ -1,12 +1,12 @@
 package com.kiyoshi.basedomains.entity;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Builder
 public class NotificationEvent {
     private String message;
     private String status;
