@@ -1,11 +1,15 @@
 package com.kiyoshi.userservice.service;
 
-import com.kiyoshi.userservice.entity.User;
+import com.kiyoshi.userservice.entity.collection.User;
+import com.kiyoshi.userservice.entity.dto.DeleteResponse;
+import com.kiyoshi.userservice.entity.dto.UserDto;
 
 public interface UserService {
-    User createUser(User user);
+    UserDto createUser(UserDto user);
 
-    User getUser(String id);
+    UserDto getUser(String id);
 
-    User updateUser(String id, User user);
+    UserDto updateUser(String id, UserDto userDto);
+
+    DeleteResponse deleteUser(String id);
 }

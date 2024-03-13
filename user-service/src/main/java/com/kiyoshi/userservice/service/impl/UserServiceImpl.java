@@ -2,8 +2,10 @@ package com.kiyoshi.userservice.service.impl;
 
 import com.kiyoshi.basedomains.entity.Notification;
 import com.kiyoshi.basedomains.entity.NotificationEvent;
-import com.kiyoshi.basedomains.entity.StockEvent;
-import com.kiyoshi.userservice.entity.User;
+import com.kiyoshi.userservice.entity.collection.Role;
+import com.kiyoshi.userservice.entity.collection.User;
+import com.kiyoshi.userservice.entity.dto.DeleteResponse;
+import com.kiyoshi.userservice.entity.dto.UserDto;
 import com.kiyoshi.userservice.exception.ResourceAlreadyExistException;
 import com.kiyoshi.userservice.exception.ResourceNotFoundException;
 import com.kiyoshi.userservice.kafka.NotificationProducer;
@@ -12,6 +14,7 @@ import com.kiyoshi.userservice.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,68 +26,125 @@ public class UserServiceImpl implements UserService {
     private UserRepository repository;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     private NotificationProducer producer;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationEvent.class);
 
 
     @Override
-    public User createUser(User user) {
-        Optional<User> founded = repository.findUserByEmail(user.getEmail());
-
+    public UserDto createUser(UserDto userDto) {
+        Optional<User> founded = repository.findUserByEmail(userDto.getEmail());
         if(founded.isPresent()){
             throw new ResourceAlreadyExistException("User already exists");
         }
 
-        user.setId(null);
-        return repository.save(user);
+        userDto.setId(null);
+        String encodedPassword = passwordEncoder.encode(userDto.getPassword());
+        userDto.setPassword(encodedPassword);
+        userDto.setRole(Role.USER);
+
+        User newUser = mapDtoToUser(userDto, true);
+        repository.save(newUser);
+        return mapUserToDto(newUser);
     }
 
     @Override
-    public User getUser(String id) {
-        return findUserInDb(id);
-    }
-
-    @Override
-    public User updateUser(String id, User user) {
+    public UserDto getUser(String id) {
         // validates user exist
-        User founded = findUserInDb(id);
+        Optional<User> existingUser = repository.findActiveById(id);
+        if(existingUser.isEmpty()) {
+            throw new ResourceNotFoundException("User not found", "id", id);
+        }
 
-        // update user and save it to DB
-        founded.setName(user.getName());
-        founded.setEmail(user.getEmail());
-        founded.setPassword(user.getPassword());
-        founded.setCard(user.getCard());
-        founded.setRole(user.getRole());
-        repository.save(founded);
+        return mapUserToDto(existingUser.get());
+    }
+
+    @Override
+    public UserDto updateUser(String id, UserDto userDto) {
+        // validates user exist
+        Optional<User> existingUser = repository.findActiveById(id);
+        if(existingUser.isEmpty()) {
+            throw new ResourceNotFoundException("User not found", "id", id);
+        }
+
+        // update user
+        userDto.setId(existingUser.get().getId());
+        userDto.setRole(Role.USER);
+        User updatedUser = mapDtoToUser(userDto, true);
+
+        //save it to db
+        repository.save(updatedUser);
 
         // create event
-        NotificationEvent event = new NotificationEvent();
-        event.setStatus("PENDING");
-        event.setMessage("Creating notification in database");
-
-        Notification notification = new Notification();
-        notification.setUserId(founded.getId());
-        notification.setTitle("User updated");
-        notification.setDescription("User updated successfully!");
-        notification.setCreatedAt(LocalDateTime.now());
-        event.setNotification(notification);
+        NotificationEvent event = createNotificationEvent(updatedUser.getId());
 
         // send notification event (kafka)
         producer.sendMessage(event);
         LOGGER.info(String.format("Notification event send from user service => %s", event.toString()));
 
         // return modified user
-        return founded;
+        return mapUserToDto(updatedUser);
     }
 
-    private User findUserInDb(String id) {
-        Optional<User> found = repository.findById(id);
-
-        if(found.isEmpty()) {
+    @Override
+    public DeleteResponse deleteUser(String id) {
+        // validates user exist
+        Optional<User> existingUser = repository.findActiveById(id);
+        if(existingUser.isEmpty()) {
             throw new ResourceNotFoundException("User not found", "id", id);
         }
 
-        return found.get();
+        User deletedUser = existingUser.get();
+        deletedUser.setIsActive(false);
+        repository.save(deletedUser);
+
+        return DeleteResponse.builder()
+                .message("User deleted successfully")
+                .status(200)
+                .build();
+    }
+
+
+    private User mapDtoToUser(UserDto userDto, Boolean isActive) {
+        return User.builder()
+                .id(userDto.getId())
+                .name(userDto.getName())
+                .email(userDto.getEmail())
+                .password(userDto.getPassword())
+                .role(userDto.getRole())
+                .card(userDto.getCard())
+                .isActive(isActive)
+                .build();
+    }
+
+    private UserDto mapUserToDto(User user) {
+        return UserDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .role(user.getRole())
+                .card(user.getCard())
+                .build();
+    }
+
+    private NotificationEvent createNotificationEvent(String userId) {
+        return NotificationEvent.builder()
+                .status("PENDING")
+                .message("Creating notification in DB")
+                .notification(createNotification(userId))
+                .build();
+    }
+
+    private Notification createNotification(String userId) {
+        return Notification.builder()
+                .userId(userId)
+                .title("User updated")
+                .description("User updated successfully")
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 }

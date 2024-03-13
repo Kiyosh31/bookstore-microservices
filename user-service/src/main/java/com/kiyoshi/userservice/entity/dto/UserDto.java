@@ -1,16 +1,17 @@
-package com.kiyoshi.userservice.entity;
+package com.kiyoshi.userservice.entity.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kiyoshi.userservice.entity.collection.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Document(collection = "user")
-public class User {
-    @Id
+@Builder
+@JsonIgnoreProperties(ignoreUnknown = true, value = {"isActive"})
+public class UserDto {
     private String id;
 
     @NotEmpty(message = "Missing name")
@@ -26,6 +27,5 @@ public class User {
     @NotNull(message = "Missing card")
     private int card;
 
-    @NotEmpty(message = "Missing role")
-    private String role;
+    private Role role;
 }
