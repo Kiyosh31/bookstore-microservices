@@ -1,7 +1,8 @@
 package com.kiyoshi.bookservice.controller;
 
-import com.kiyoshi.bookservice.entity.Book;
-import com.kiyoshi.bookservice.entity.BookRequest;
+import com.kiyoshi.bookservice.entity.collection.Book;
+import com.kiyoshi.bookservice.entity.dto.BookRequestDto;
+import com.kiyoshi.bookservice.entity.dto.BookDto;
 import com.kiyoshi.bookservice.service.BookService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,18 +18,18 @@ public class BookController {
     @Autowired
     private BookService service;
 
-    @PostMapping
-    public ResponseEntity<Book> createBook(@Valid @RequestBody BookRequest book){
+    @PostMapping("/create")
+    public ResponseEntity<BookDto> createBook(@Valid @RequestBody BookRequestDto book){
         return new ResponseEntity<>(service.createBook(book), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> getBook(@PathVariable String id) {
+    public ResponseEntity<BookDto> getBook(@PathVariable String id) {
         return new ResponseEntity<>(service.getBook(id), HttpStatus.FOUND);
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<Book>> getAllBooks() {
+    @GetMapping("/all")
+    public ResponseEntity<List<BookDto>> getAllBooks() {
         return new ResponseEntity<>(service.getAllBooks(), HttpStatus.FOUND);
     }
 }

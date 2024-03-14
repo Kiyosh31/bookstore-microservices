@@ -39,15 +39,16 @@ public class StockConsumer {
     }
 
     private void createStock(StockEvent event) {
-        // save event data into db
-        Stock stock = new Stock();
-        stock.setBookId(event.getStock().getBookId());
-        stock.setBookName(event.getStock().getBookName());
-        stock.setAvailableQuantity(event.getStock().getAvailableQuantity());
-        stock.setPrice(event.getStock().getPrice());
+        // Create event obj
+        Stock newStock = Stock.builder()
+                .bookId(event.getStock().getBookId())
+                .bookName(event.getStock().getBookName())
+                .availableQuantity(event.getStock().getAvailableQuantity())
+                .price(event.getStock().getPrice())
+                .build();
 
         // create register in db
-        repository.save(stock);
+        repository.save(newStock);
     }
 
     private void subtractStock(StockEvent event) {
@@ -57,7 +58,7 @@ public class StockConsumer {
         // get a list from db
         Optional<List<Stock>> books = repository.findByBookIdIn(bookIds);
         if(books.isEmpty()) {
-            throw new ResourceNotFoundException("No books found", "id", "");
+            throw new ResourceNotFoundException("No books found", "id", books.toString());
         }
 
         List<Stock> newStock = books.get();

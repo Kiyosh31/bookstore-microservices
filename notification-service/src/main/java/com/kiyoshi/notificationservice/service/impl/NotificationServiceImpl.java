@@ -18,7 +18,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<Notification> getAllUserNotifications(String userId) {
         Optional<List<Notification>> found = repository.findByUserId(userId);
-
         if(found.isEmpty()){
             throw new ResourceNotFoundException("No notifications found", "userId", userId);
         }

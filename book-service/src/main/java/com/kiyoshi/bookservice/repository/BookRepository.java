@@ -1,6 +1,6 @@
 package com.kiyoshi.bookservice.repository;
 
-import com.kiyoshi.bookservice.entity.Book;
+import com.kiyoshi.bookservice.entity.collection.Book;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;

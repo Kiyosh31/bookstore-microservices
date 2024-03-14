@@ -3,8 +3,9 @@ package com.kiyoshi.bookservice.service.impl;
 import com.kiyoshi.basedomains.entity.Actions;
 import com.kiyoshi.basedomains.entity.Stock;
 import com.kiyoshi.basedomains.entity.StockEvent;
-import com.kiyoshi.bookservice.entity.Book;
-import com.kiyoshi.bookservice.entity.BookRequest;
+import com.kiyoshi.bookservice.entity.collection.Book;
+import com.kiyoshi.bookservice.entity.dto.BookRequestDto;
+import com.kiyoshi.bookservice.entity.dto.BookDto;
 import com.kiyoshi.bookservice.exception.ResourceAlreadyExistException;
 import com.kiyoshi.bookservice.exception.ResourceNotFoundException;
 import com.kiyoshi.bookservice.kafka.StockProducer;
@@ -30,54 +31,85 @@ public class BookServiceImpl implements BookService {
 
 
     @Override
-    public Book createBook(BookRequest book) {
-        book.getBook().setId(null);
-        Optional<Book> found = repository.finByName(book.getBook().getName());
-
+    public BookDto createBook(BookRequestDto bookRequestDto) {
+        Optional<Book> found = repository.finByName(bookRequestDto.getBook().getName());
         if(found.isPresent()) {
             throw new ResourceAlreadyExistException("Book already exists");
         }
 
+        // map dto to book
+        Book newBook = mapDtoToBook(bookRequestDto);
         // save the new book to db
-        Book createdBook = repository.save(book.getBook());
+        Book createdBook = repository.save(newBook);
 
         // create event
-        StockEvent event = new StockEvent();
-        event.setStatus("PENDING");
-        event.setMessage("Creating stock in database");
-        event.setAction(Actions.CREATE);
-
-        Stock stock = new Stock();
-        stock.setBookId(createdBook.getId());
-        stock.setBookName(createdBook.getName());
-        stock.setAvailableQuantity(book.getAvailableQuantity());
-        stock.setPrice(book.getPrice());
-        event.setStock(stock);
+        StockEvent event = createStockEvent(createdBook, bookRequestDto.getAvailableQuantity(), bookRequestDto.getPrice());
 
         // dispatch event
         producer.sendMessage(event);
         LOGGER.info(String.format("Stock event send from book service => %s", event.toString()));
 
-        return createdBook;
+        // map book to dto
+        return mapBookToDto(createdBook);
     }
 
     @Override
-    public Book getBook(String id) {
-        return findBookById(id);
-    }
-
-    @Override
-    public List<Book> getAllBooks() {
-        return null;
-    }
-
-    private Book findBookById(String id) {
-        Optional<Book> found = repository.findById(id);
-
-        if(found.isEmpty()) {
+    public BookDto getBook(String id) {
+        Optional<Book> existingBook = repository.findById(id);
+        if(existingBook.isEmpty()) {
             throw new ResourceNotFoundException("Book not found", "id", id);
         }
 
-        return found.get();
+        return mapBookToDto(existingBook.get());
+    }
+
+    @Override
+    public List<BookDto> getAllBooks() {
+        return null;
+    }
+
+    private Book mapDtoToBook(BookRequestDto bookRequestDto) {
+        Book book = bookRequestDto.getBook();
+
+        return Book.builder()
+                .id(book.getId())
+                .name(book.getName())
+                .author(book.getAuthor())
+                .editorial(book.getEditorial())
+                .pages(book.getPages())
+                .build();
+    }
+
+    private BookDto mapBookToDto(Book book) {
+        return BookDto.builder()
+                .id(book.getId())
+                .name(book.getName())
+                .author(book.getAuthor())
+                .editorial(book.getEditorial())
+                .pages(book.getPages())
+                .build();
+    }
+
+    private StockEvent createStockEvent(Book createdBook, Integer availableQuantity, Long price) {
+        return StockEvent.builder()
+                .status("PENDING")
+                .message("Creating stock in database")
+                .action(Actions.CREATE)
+                .stock(createStock(
+                        createdBook.getId(),
+                        createdBook.getName(),
+                        availableQuantity,
+                        price
+                ))
+                .build();
+    }
+
+    private Stock createStock(String id, String name, Integer availableQuantity, Long price) {
+        return Stock.builder()
+                .bookId(id)
+                .bookName(name)
+                .availableQuantity(availableQuantity)
+                .price(price)
+                .build();
     }
 }

@@ -2,11 +2,13 @@ package com.kiyoshi.stockservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
+@Builder
 @Document(collection = "stock")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Stock {

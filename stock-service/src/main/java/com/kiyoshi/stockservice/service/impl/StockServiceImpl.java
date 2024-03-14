@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-@Slf4j
 public class StockServiceImpl implements StockService {
     @Autowired
     private StockRepository repository;

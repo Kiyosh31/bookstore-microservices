@@ -7,7 +7,6 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@ComponentScan({"com.kiyoshi"})
 public class StockServiceApplication {
 
 	public static void main(String[] args) {

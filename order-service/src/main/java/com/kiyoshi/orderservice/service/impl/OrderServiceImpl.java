@@ -97,36 +97,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private static StockEvent createStockEvent(Order order) {
-        StockEvent event = new StockEvent();
-        event.setStatus("PENDING");
-        event.setMessage("Subtracting quantity of books");
-        event.setAction(Actions.SUBTRACT);
-
         List<Book> booksToSubtract = new ArrayList<>();
         for(Book item: order.getBooks()) {
-            Book newBook = new Book();
-            newBook.setBookId(item.getBookId());
-            newBook.setQuantity(item.getQuantity());
-            booksToSubtract.add(newBook);
+            booksToSubtract.add(new Book(item.getBookId(), item.getQuantity()));
         }
 
-        event.setBooks(booksToSubtract);
-        return event;
-    }
-
-    private static NotificationEvent createNotificationEvent(String userId) {
-        NotificationEvent notificationEvent = new NotificationEvent();
-        notificationEvent.setStatus("PENDING");
-        notificationEvent.setMessage("Creating new notification");
-
-        Notification notification = new Notification();
-        notification.setTitle("Order placed successfully");
-        notification.setDescription("Order was placed successfully with all info");
-        notification.setCreatedAt(LocalDateTime.now());
-        notification.setUserId(userId);
-
-        notificationEvent.setNotification(notification);
-        return notificationEvent;
+        return StockEvent.builder()
+                .status("PENDING")
+                .message("Subtracting quantity of books")
+                .action(Actions.SUBTRACT)
+                .books(booksToSubtract)
+                .build();
     }
 
     @Override
@@ -185,5 +166,22 @@ public class OrderServiceImpl implements OrderService {
         );
 
         return responseEntity.getBody();
+    }
+
+    private static NotificationEvent createNotificationEvent(String userId) {
+        return NotificationEvent.builder()
+                .status("PENDING")
+                .message("Creating new Order")
+                .notification(createNotification(userId))
+                .build();
+    }
+
+    private static Notification createNotification(String userId) {
+        return Notification.builder()
+                .title("Order placed successfully")
+                .description("Order was placed successfully with all info")
+                .createdAt(LocalDateTime.now())
+                .userId(userId)
+                .build();
     }
 }
