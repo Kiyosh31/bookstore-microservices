@@ -1,6 +1,5 @@
 package com.kiyoshi.userservice.service;
 
-import com.kiyoshi.userservice.entity.collection.User;
 import com.kiyoshi.userservice.entity.dto.DeleteResponse;
 import com.kiyoshi.userservice.entity.dto.UserDto;
 

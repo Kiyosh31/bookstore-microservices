@@ -20,4 +20,62 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_started
+
+#  discovery-server:
+#    container_name: discovery-server
+#    build:
+#      context: ./discovery-server
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8761:8761"
+#    restart: on-failure
+#    environment:
+#      - spring.application.name=discovery-service
+#      - server.port=8761
+#      - eureka.client.service-url.defaultZone=http://localhost:8761/eureka
+#      - eureka.client.fetch-registry=false
+#      - eureka.client.register-with-eureka=false
+#    depends_on:
+#      zookeeper:
+#        condition: service_started
+#      kafka:
+#        condition: service_started
+
+#  user-service:
+#    container_name: user-service
+#    build:
+#      context: ./user-service
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8081:8081"
+#    restart: on-failure
+#    depends_on:
+#      discovery-server:
+#        condition: service_healthy
+
+#  api-gateway:
+#    container_name: api-gateway
+#    build:
+#      context: ./api-gateway
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8080:8080"
+#    restart: on-failure
+#    environment:
+#      - spring.application.name=api-gateway
+#      - server.port=8080
+#      - logging.level.root=INFO
+#      - logging.level.org.springframework.cloud.gateway.route.RouteDefinitionLocator=INFO
+#      - logging.level.org.springframework.cloud.gateway=TRACE
+#      - no-auth.paths=/api/v1/auth/generateToken,/api/v1/user/create,/api/v1/admin/create
+#      - eureka.client.service-url.defaultZone=http://localhost:8761/eureka
+#      - eureka.client.fetch-registry=true
+#      - eureka.client.register-with-eureka=true
+#      - eureka.client.enabled=true
+#    depends_on:
+#      discovery-server:
+#        condition: service_started
+#      user-service:
+#        condition: service_healthy

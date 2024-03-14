@@ -1,10 +1,8 @@
 package com.kiyoshi.userservice.controller;
 
-import com.kiyoshi.userservice.entity.collection.User;
 import com.kiyoshi.userservice.entity.dto.DeleteResponse;
 import com.kiyoshi.userservice.entity.dto.UserDto;
 import com.kiyoshi.userservice.service.AdminService;
-import com.kiyoshi.userservice.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

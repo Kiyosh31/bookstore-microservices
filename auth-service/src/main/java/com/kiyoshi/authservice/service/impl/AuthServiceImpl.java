@@ -8,6 +8,7 @@ import com.kiyoshi.authservice.exception.ResourceNotFoundException;
 import com.kiyoshi.authservice.repository.AuthRepository;
 import com.kiyoshi.authservice.service.AuthService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -16,8 +17,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -34,82 +39,104 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Value("${jwt-secret.expiration-time}")
-    private String EXPIRATION_TIME;
+    private Long EXPIRATION_TIME;
 
     @Override
     public TokenResponse generateToken(TokenRequest request) {
-        // verify the user
-        Optional<User> found = repository.findUserByEmail(request.getEmail());
-        if(found.isEmpty()){
+        // verify user exist
+        Optional<User> existingUser = repository.findUserByEmail(request.getEmail());
+        if(existingUser.isEmpty()){
             throw new ResourceNotFoundException("User not found", "email", request.getEmail());
         }
 
         // verify the password
-        if(!passwordEncoder.matches(request.getPassword(), found.get().getPassword())) {
+        if(!passwordEncoder.matches(request.getPassword(), existingUser.get().getPassword())) {
             throw new BadRequestException("Invalid credentials");
         }
 
         // generate token
-        return generateToken(request.getEmail());
+        String token = generateToken(existingUser.get());
+
+        // return
+        return TokenResponse.builder()
+                .token(token)
+                .build();
     }
 
     @Override
     public Boolean validateToken(String authHeader) {
-//        String bearer = authHeader.substring(7);
-//        String email = getEmailFromToken(bearer);
+        // get token
+        String token = authHeader.substring(7);
 
-        // verify the user
-//        Optional<User> user = repository.findUserByEmail(email);
-//        if(user.isEmpty()){
-//            throw new ResourceNotFoundException("User not found", "email", email);
-//        }
+        // get email from jwt
+        String email = getEmailFromToken(token);
 
-        //return user.get().getEmail().equals(email) && !isTokenExpired(bearer);
-        return null;
+        // verify user exist
+        Optional<User> existingUser = repository.findUserByEmail(email);
+        if(existingUser.isEmpty()){
+            throw new ResourceNotFoundException("User not found", "email", email);
+        }
+
+        // validate token
+        return isTokenValid(token, existingUser.get());
     }
 
-    private TokenResponse generateToken(String email) {
-        Jwts.builder()
-                .claims()
-//        String token = Jwts.builder()
-//                .subject(email)
-//                .issuedAt(new Date(System.currentTimeMillis()))
-//                .expiration(new Date(System.currentTimeMillis() + Integer.parseInt(EXPIRATION_TIME)))
-//                .signWith(getKey())
-//                .compact();
-//
-//        return TokenResponse.builder()
-//                .token(token)
-//                .build();
+    public String generateToken(User user) {
+        return generateToken(new HashMap<>(), user);
     }
 
-    private Key getKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+    private String generateToken(Map<String,Object> extraClaims, User user) {
+        return Jwts
+                .builder()
+                .claims(extraClaims)
+                .claim("username", user.getName())
+                .subject(user.getEmail())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis()+1000*60*24))
+                .signWith(getKey())
+                .header()
+                .add("typ", "JWT")
+                .and()
+                .compact();
+    }
+
+    private SecretKey getKey() {
+        byte[] keyBytes=Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-//    private String getEmailFromToken(String token) {
-//        return getClaim(token, Claims::getSubject);
-//    }
+    public String getEmailFromToken(String token) {
+        return getClaim(token, Claims::getSubject);
+    }
 
-//    private <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
-//        final Claims claims = getAllClaims(token);
-//        return claimsResolver.apply(claims);
-//    }
+    public boolean isTokenValid(String token, User user) {
+        final String email=getEmailFromToken(token);
+        return (email.equals(user.getEmail()) && !isTokenExpired(token));
+    }
 
-//    private Claims getAllClaims(String token) {
-//        return Jwts.parser()
-//                .verifyWith(SECRET_KEY)
-//                .build()
-//                .parseSignedClaims(token)
-//                .getPayload();
-//    }
+    private Claims getAllClaims(String token)
+    {
+        return Jwts
+                .parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
 
-//    private Boolean isTokenExpired(String token) {
-//        return getExpiration(token).before(new Date());
-//    }
-//
-//    private Date getExpiration(String token) {
-//        return getClaim(token, Claims::getExpiration);
-//    }
+    public <T> T getClaim(String token, Function<Claims,T> claimsResolver)
+    {
+        final Claims claims=getAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Date getExpiration(String token)
+    {
+        return getClaim(token, Claims::getExpiration);
+    }
+
+    private boolean isTokenExpired(String token)
+    {
+        return getExpiration(token).before(new Date());
+    }
 }
