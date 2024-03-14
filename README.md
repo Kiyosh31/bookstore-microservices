@@ -9,9 +9,10 @@ This is my learning in creating microservices in spring boot with several techno
 # Usage
 Run the services in order
 1. discovery-server
-2. docker-compose
-3. all services
-4. api-gateway
+2. config-server
+3. docker-compose
+4. all services
+5. api-gateway
 
 # Run
 In root folder there is a `.run` folder you can import in intellij idea to run all microservices at once.
@@ -30,3 +31,6 @@ Otherwise, run services as described in usage section
 - [order-service](http://localhost:8084/swagger-ui/index.html)
 - [stock-service](http://localhost:8083/swagger-ui/index.html)
 - [notification-service](http://localhost:8085/swagger-ui/index.html)
+
+# Note
+if for somehow the kafka communication starts to fail, go to event class and re-write `@AllArgsConstructor` annotation that will fix everything

@@ -39,11 +39,10 @@ public class AuthorizationFilter implements GlobalFilter {
                 return missingAuthHeader(exchange);
             }
 
-            // You can add more complex validation logic here if needed
             // auth-service
-            if(!authValidateTokenRequest(authorizationHeader)){
-                return invalidAuthHeader(exchange);
-            }
+//            if(!authValidateTokenRequest(authorizationHeader)){
+//                return invalidAuthHeader(exchange);
+//            }
         }
 
         return chain.filter(exchange);
