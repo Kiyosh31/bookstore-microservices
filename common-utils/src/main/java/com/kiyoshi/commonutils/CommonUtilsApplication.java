@@ -1,13 +1,13 @@
-package com.kiyoshi.basedomains;
+package com.kiyoshi.commonutils;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BaseDomainsApplication {
+public class CommonUtilsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BaseDomainsApplication.class, args);
+		SpringApplication.run(CommonUtilsApplication.class, args);
 	}
 
 }

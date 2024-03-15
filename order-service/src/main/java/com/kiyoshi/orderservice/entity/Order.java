@@ -1,7 +1,7 @@
 package com.kiyoshi.orderservice.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kiyoshi.basedomains.entity.Book;
+import com.kiyoshi.commonutils.Book;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.data.annotation.Id;

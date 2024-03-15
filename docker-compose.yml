@@ -31,18 +31,24 @@ services:
 #    ports:
 #      - "8761:8761"
 #    restart: on-failure
-#    environment:
-#      - spring.application.name=discovery-service
-#      - server.port=8761
-#      - eureka.client.service-url.defaultZone=http://localhost:8761/eureka
-#      - eureka.client.fetch-registry=false
-#      - eureka.client.register-with-eureka=false
 #    depends_on:
 #      zookeeper:
 #        condition: service_started
 #      kafka:
 #        condition: service_started
 
+#  config-server:
+#    container_name: config-server
+#    build:
+#      context: ./config-server
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8888:8888"
+#    restart: on-failure
+#    depends_on:
+#      discovery-server:
+#        condition: service_started
+#
 #  user-service:
 #    container_name: user-service
 #    build:
@@ -52,7 +58,7 @@ services:
 #      - "8081:8081"
 #    restart: on-failure
 #    depends_on:
-#      discovery-server:
+#      config-server:
 #        condition: service_healthy
 
 #  api-gateway:

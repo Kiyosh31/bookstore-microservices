@@ -1,4 +1,4 @@
-package com.kiyoshi.basedomains.entity;
+package com.kiyoshi.commonutils;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,13 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Stock {
-    private String id;
+public class Book {
     private String bookId;
-    private String bookName;
-    private Integer availableQuantity;
-    private Long price;
+    private Integer quantity;
 }

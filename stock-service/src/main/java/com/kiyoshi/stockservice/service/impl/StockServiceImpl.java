@@ -1,11 +1,10 @@
 package com.kiyoshi.stockservice.service.impl;
 
-import com.kiyoshi.basedomains.entity.Book;
+import com.kiyoshi.commonutils.Book;
 import com.kiyoshi.stockservice.entity.Stock;
 import com.kiyoshi.stockservice.exception.ResourceNotFoundException;
 import com.kiyoshi.stockservice.repository.StockRepository;
 import com.kiyoshi.stockservice.service.StockService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

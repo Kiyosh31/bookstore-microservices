@@ -1,7 +1,7 @@
 package com.kiyoshi.stockservice.kafka;
 
-import com.kiyoshi.basedomains.entity.Book;
-import com.kiyoshi.basedomains.entity.StockEvent;
+import com.kiyoshi.commonutils.Book;
+import com.kiyoshi.commonutils.StockEvent;
 import com.kiyoshi.stockservice.entity.Stock;
 import com.kiyoshi.stockservice.exception.ResourceNotFoundException;
 import com.kiyoshi.stockservice.repository.StockRepository;

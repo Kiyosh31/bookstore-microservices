@@ -1,7 +1,8 @@
 package com.kiyoshi.userservice.service.impl;
 
-import com.kiyoshi.basedomains.entity.Notification;
-import com.kiyoshi.basedomains.entity.NotificationEvent;
+import com.kiyoshi.commonutils.NotificationEvent;
+import com.kiyoshi.commonutils.Notification;
+import com.kiyoshi.commonutils.NotificationEvent;
 import com.kiyoshi.userservice.entity.collection.Role;
 import com.kiyoshi.userservice.entity.collection.User;
 import com.kiyoshi.userservice.entity.dto.DeleteResponse;

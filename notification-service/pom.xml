@@ -40,7 +40,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.kiyoshi</groupId>
-			<artifactId>base-domains</artifactId>
+			<artifactId>common-utils</artifactId>
 			<version>0.0.1</version>
 		</dependency>
 		<dependency>

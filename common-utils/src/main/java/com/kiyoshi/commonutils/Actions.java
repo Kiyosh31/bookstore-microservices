@@ -1,4 +1,4 @@
-package com.kiyoshi.basedomains.entity;
+package com.kiyoshi.commonutils;
 
 public enum Actions {
     CREATE,

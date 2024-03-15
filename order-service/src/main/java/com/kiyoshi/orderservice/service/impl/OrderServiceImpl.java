@@ -1,6 +1,6 @@
 package com.kiyoshi.orderservice.service.impl;
 
-import com.kiyoshi.basedomains.entity.*;
+import com.kiyoshi.commonutils.*;
 import com.kiyoshi.orderservice.entity.Order;
 import com.kiyoshi.orderservice.entity.User;
 import com.kiyoshi.orderservice.exception.ResourceNotFoundException;

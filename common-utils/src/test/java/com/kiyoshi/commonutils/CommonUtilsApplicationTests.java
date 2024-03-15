@@ -1,10 +1,10 @@
-package com.kiyoshi.basedomains;
+package com.kiyoshi.commonutils;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BaseDomainsApplicationTests {
+class CommonUtilsApplicationTests {
 
 	@Test
 	void contextLoads() {

@@ -1,6 +1,6 @@
 package com.kiyoshi.stockservice.controller;
 
-import com.kiyoshi.basedomains.entity.Book;
+import com.kiyoshi.commonutils.Book;
 import com.kiyoshi.stockservice.entity.Stock;
 import com.kiyoshi.stockservice.service.StockService;
 import org.springframework.beans.factory.annotation.Autowired;

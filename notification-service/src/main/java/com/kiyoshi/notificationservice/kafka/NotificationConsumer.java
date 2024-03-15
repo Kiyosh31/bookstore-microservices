@@ -1,6 +1,6 @@
 package com.kiyoshi.notificationservice.kafka;
 
-import com.kiyoshi.basedomains.entity.NotificationEvent;
+import com.kiyoshi.commonutils.NotificationEvent;
 import com.kiyoshi.notificationservice.entity.Notification;
 import com.kiyoshi.notificationservice.repository.NotificationRepository;
 import org.slf4j.Logger;
