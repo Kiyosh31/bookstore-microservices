@@ -1,6 +1,6 @@
 package com.kiyoshi.orderservice.kafka;
 
-import com.kiyoshi.commonutils.StockEvent;
+import com.kiyoshi.commonutils.entity.Stock.StockEvent;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

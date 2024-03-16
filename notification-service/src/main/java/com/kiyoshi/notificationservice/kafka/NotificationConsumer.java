@@ -1,7 +1,7 @@
 package com.kiyoshi.notificationservice.kafka;
 
-import com.kiyoshi.commonutils.NotificationEvent;
-import com.kiyoshi.notificationservice.entity.Notification;
+import com.kiyoshi.commonutils.entity.notification.Notification;
+import com.kiyoshi.commonutils.entity.notification.NotificationEvent;
 import com.kiyoshi.notificationservice.repository.NotificationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class NotificationConsumer {
         newNotification.setTitle(event.getNotification().getTitle());
         newNotification.setDescription(event.getNotification().getDescription());
         newNotification.setCreatedAt(event.getNotification().getCreatedAt());
-        repository.save(newNotification);
+
 
         //send notification to FE
     }

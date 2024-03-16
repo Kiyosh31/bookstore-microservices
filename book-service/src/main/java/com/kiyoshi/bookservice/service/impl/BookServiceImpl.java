@@ -1,8 +1,8 @@
 package com.kiyoshi.bookservice.service.impl;
 
-import com.kiyoshi.commonutils.Actions;
-import com.kiyoshi.commonutils.Stock;
-import com.kiyoshi.commonutils.StockEvent;
+import com.kiyoshi.commonutils.entity.Actions;
+import com.kiyoshi.commonutils.entity.Stock.Stock;
+import com.kiyoshi.commonutils.entity.Stock.StockEvent;
 import com.kiyoshi.bookservice.entity.collection.Book;
 import com.kiyoshi.bookservice.entity.dto.BookRequestDto;
 import com.kiyoshi.bookservice.entity.dto.BookDto;

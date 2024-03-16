@@ -1,4 +1,4 @@
-package com.kiyoshi.commonutils;
+package com.kiyoshi.commonutils.entity.Stock;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

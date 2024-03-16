@@ -1,6 +1,11 @@
 package com.kiyoshi.orderservice.service.impl;
 
-import com.kiyoshi.commonutils.*;
+import com.kiyoshi.commonutils.entity.Actions;
+import com.kiyoshi.commonutils.entity.Stock.Book;
+import com.kiyoshi.commonutils.entity.Stock.Stock;
+import com.kiyoshi.commonutils.entity.Stock.StockEvent;
+import com.kiyoshi.commonutils.entity.notification.Notification;
+import com.kiyoshi.commonutils.entity.notification.NotificationEvent;
 import com.kiyoshi.orderservice.entity.Order;
 import com.kiyoshi.orderservice.entity.User;
 import com.kiyoshi.orderservice.exception.ResourceNotFoundException;
@@ -172,6 +177,7 @@ public class OrderServiceImpl implements OrderService {
         return NotificationEvent.builder()
                 .status("PENDING")
                 .message("Creating new Order")
+                .action(Actions.CREATE)
                 .notification(createNotification(userId))
                 .build();
     }

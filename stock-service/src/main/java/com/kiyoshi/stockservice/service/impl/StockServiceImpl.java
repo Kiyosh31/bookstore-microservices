@@ -1,6 +1,6 @@
 package com.kiyoshi.stockservice.service.impl;
 
-import com.kiyoshi.commonutils.Book;
+import com.kiyoshi.commonutils.entity.Stock.Book;
 import com.kiyoshi.stockservice.entity.Stock;
 import com.kiyoshi.stockservice.exception.ResourceNotFoundException;
 import com.kiyoshi.stockservice.repository.StockRepository;

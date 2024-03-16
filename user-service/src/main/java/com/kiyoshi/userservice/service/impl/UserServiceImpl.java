@@ -1,7 +1,8 @@
 package com.kiyoshi.userservice.service.impl;
 
-import com.kiyoshi.commonutils.Notification;
-import com.kiyoshi.commonutils.NotificationEvent;
+import com.kiyoshi.commonutils.entity.Actions;
+import com.kiyoshi.commonutils.entity.notification.Notification;
+import com.kiyoshi.commonutils.entity.notification.NotificationEvent;
 import com.kiyoshi.userservice.entity.collection.Role;
 import com.kiyoshi.userservice.entity.collection.User;
 import com.kiyoshi.userservice.entity.dto.DeleteResponse;
@@ -135,6 +136,7 @@ public class UserServiceImpl implements UserService {
         return NotificationEvent.builder()
                 .status("PENDING")
                 .message("Creating notification in DB")
+                .action(Actions.CREATE)
                 .notification(createNotification(userId))
                 .build();
     }
