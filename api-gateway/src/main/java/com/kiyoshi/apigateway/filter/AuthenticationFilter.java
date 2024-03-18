@@ -1,5 +1,6 @@
-package com.kiyoshi.apigateway.component;
+package com.kiyoshi.apigateway.filter;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -16,7 +17,8 @@ import java.util.List;
 
 @Component
 @Order(-1)
-public class AuthorizationFilter implements GlobalFilter {
+@Slf4j
+public class AuthenticationFilter implements GlobalFilter {
     @Autowired
     private RestTemplate restTemplate;
 
@@ -39,7 +41,7 @@ public class AuthorizationFilter implements GlobalFilter {
                 return missingAuthHeader(exchange);
             }
 
-            // auth-service
+            // jwt validation
 //            if(!authValidateTokenRequest(authorizationHeader)){
 //                return invalidAuthHeader(exchange);
 //            }

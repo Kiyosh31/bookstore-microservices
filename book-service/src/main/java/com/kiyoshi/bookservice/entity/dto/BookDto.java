@@ -23,4 +23,7 @@ public class BookDto {
 
     @NotNull(message = "Missing author")
     private String author;
+
+    @NotNull(message = "Missing cover image")
+    private CoverImage coverImage;
 }

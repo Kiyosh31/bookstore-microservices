@@ -69,19 +69,6 @@ services:
 #    ports:
 #      - "8080:8080"
 #    restart: on-failure
-#    environment:
-#      - spring.application.name=api-gateway
-#      - server.port=8080
-#      - logging.level.root=INFO
-#      - logging.level.org.springframework.cloud.gateway.route.RouteDefinitionLocator=INFO
-#      - logging.level.org.springframework.cloud.gateway=TRACE
-#      - no-auth.paths=/api/v1/auth/generateToken,/api/v1/user/create,/api/v1/admin/create
-#      - eureka.client.service-url.defaultZone=http://localhost:8761/eureka
-#      - eureka.client.fetch-registry=true
-#      - eureka.client.register-with-eureka=true
-#      - eureka.client.enabled=true
 #    depends_on:
-#      discovery-server:
-#        condition: service_started
 #      user-service:
-#        condition: service_healthy
+#        condition: service_started

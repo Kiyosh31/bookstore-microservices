@@ -37,6 +37,9 @@ public class BookServiceImpl implements BookService {
             throw new ResourceAlreadyExistException("Book already exists");
         }
 
+        // save the cover image to folder
+
+
         // map dto to book
         Book newBook = mapDtoToBook(bookRequestDto);
         // save the new book to db
@@ -55,17 +58,22 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto getBook(String id) {
-        Optional<Book> existingBook = repository.findById(id);
-        if(existingBook.isEmpty()) {
-            throw new ResourceNotFoundException("Book not found", "id", id);
-        }
-
-        return mapBookToDto(existingBook.get());
+        Book book = validateBook(id);
+        return mapBookToDto(book);
     }
 
     @Override
     public List<BookDto> getAllBooks() {
         return null;
+    }
+
+    private Book validateBook(String id) {
+        Optional<Book> found = repository.findById(id);
+        if(found.isEmpty()) {
+            throw new ResourceNotFoundException("Book not found", "id", id);
+        }
+
+        return found.get();
     }
 
     private Book mapDtoToBook(BookRequestDto bookRequestDto) {
@@ -77,6 +85,7 @@ public class BookServiceImpl implements BookService {
                 .author(book.getAuthor())
                 .editorial(book.getEditorial())
                 .pages(book.getPages())
+                .coverImage(book.getCoverImage())
                 .build();
     }
 

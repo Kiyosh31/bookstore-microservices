@@ -11,4 +11,6 @@ public interface AdminService {
     UserDto updateAdmin(String id, UserDto userDto);
 
     DeleteResponse deleteAdmin(String id);
+
+    UserDto reactivateAdmin(String id);
 }

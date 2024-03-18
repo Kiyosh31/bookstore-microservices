@@ -9,9 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface AdminRepository extends MongoRepository<User, String> {
-    @Query("{email: ?0, role: ADMIN, isActive: true}")
+    @Query("{email: ?0, role: ADMIN}")
     Optional<User> findAdminByEmail(String email);
-
-    @Query("{_id: ?0, role: ADMIN, isActive: true}")
-    Optional<User> findActiveById(String id);
 }

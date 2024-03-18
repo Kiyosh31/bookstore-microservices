@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/user")
+//@PreAuthorize("hasRole('USER')")
 public class UserController {
     @Autowired
     private UserService service;
@@ -20,18 +21,24 @@ public class UserController {
         return new ResponseEntity<>(service.createUser(userDto), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/get/{id}")
+//    @PreAuthorize("hasAuthority('user:read')")
     public ResponseEntity<UserDto> getUser(@PathVariable String id) {
         return new ResponseEntity<>(service.getUser(id), HttpStatus.FOUND);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<UserDto> updateUser(@PathVariable String id, @Valid @RequestBody UserDto userDto) {
         return new ResponseEntity<>(service.updateUser(id, userDto), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<DeleteResponse> deleteUser(@PathVariable String id) {
         return new ResponseEntity<>(service.deleteUser(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/reactivate/{id}")
+    public ResponseEntity<UserDto> reactivateUser(@PathVariable String id) {
+        return new ResponseEntity<>(service.reactivateUser(id), HttpStatus.OK);
     }
 }

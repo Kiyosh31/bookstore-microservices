@@ -11,4 +11,6 @@ public interface UserService {
     UserDto updateUser(String id, UserDto userDto);
 
     DeleteResponse deleteUser(String id);
+
+    UserDto reactivateUser(String id);
 }

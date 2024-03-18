@@ -1,8 +1,8 @@
 package com.kiyoshi.userservice.service.impl;
 
 import com.kiyoshi.commonutils.entity.Actions;
-import com.kiyoshi.commonutils.entity.notification.NotificationEvent;
 import com.kiyoshi.commonutils.entity.notification.Notification;
+import com.kiyoshi.commonutils.entity.notification.NotificationEvent;
 import com.kiyoshi.userservice.entity.collection.Role;
 import com.kiyoshi.userservice.entity.collection.User;
 import com.kiyoshi.userservice.entity.dto.DeleteResponse;
@@ -53,25 +53,17 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public UserDto getAdmin(String id) {
-        // validates admin exist
-        Optional<User> existingAdmin = repository.findActiveById(id);
-        if(existingAdmin.isEmpty()) {
-            throw new ResourceNotFoundException("Admin not found", "id", id);
-        }
-
-        return mapAdminToDto(existingAdmin.get());
+        User admin = validateAdmin(id);
+        return mapAdminToDto(admin);
     }
 
     @Override
     public UserDto updateAdmin(String id, UserDto userDto) {
         // validates admin exist
-        Optional<User> existingAdmin = repository.findActiveById(id);
-        if(existingAdmin.isEmpty()) {
-            throw new ResourceNotFoundException("Admin not found", "id", id);
-        }
+        User admin = validateAdmin(id);
 
         // update admin
-        userDto.setId(existingAdmin.get().getId());
+        userDto.setId(admin.getId());
         userDto.setRole(Role.ADMIN);
         User updatedAdmin = mapDtoToAdmin(userDto, true);
 
@@ -92,19 +84,51 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public DeleteResponse deleteAdmin(String id) {
         // validates admin exist
-        Optional<User> existingAdmin = repository.findActiveById(id);
-        if(existingAdmin.isEmpty()) {
-            throw new ResourceNotFoundException("Admin not found", "id", id);
-        }
+        User admin = validateAdmin(id);
 
-        User deletedUser = existingAdmin.get();
-        deletedUser.setIsActive(false);
-        repository.save(deletedUser);
+        admin.setIsActive(false);
+        repository.save(admin);
 
         return DeleteResponse.builder()
                 .message("Admin deleted successfully")
                 .status(200)
                 .build();
+    }
+
+    @Override
+    public UserDto reactivateAdmin(String id) {
+        Optional<User> found = repository.findById(id);
+        if(found.isEmpty()){
+            throw new ResourceNotFoundException("Admin", "id", id);
+        }
+
+        if(!found.get().getRole().name().equals(Role.ADMIN.name())) {
+            throw new ResourceNotFoundException("Admin", "id", id);
+        }
+
+        User reactivatedAdmin = found.get();
+        reactivatedAdmin.setIsActive(true);
+        repository.save(reactivatedAdmin);
+
+        return mapAdminToDto(reactivatedAdmin);
+    }
+
+    private User validateAdmin(String id) {
+        // validates admin exist
+        Optional<User> found = repository.findById(id);
+        if(found.isPresent()) {
+            User admin = found.get();
+
+            // admin is active
+            // admin role: ADMIN
+            if(!admin.getIsActive() || !admin.getRole().name().equals(Role.ADMIN.name())) {
+                throw new ResourceNotFoundException("Admin", "id", id);
+            }
+
+            return admin;
+        }
+
+        throw new ResourceNotFoundException("Admin", "id", id);
     }
 
     private User mapDtoToAdmin(UserDto userDto, Boolean isActive) {

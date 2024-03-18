@@ -1,4 +1,4 @@
-package com.kiyoshi.apigateway.config;
+package com.kiyoshi.apigateway.router;
 
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ApiGatewayConfiguration {
+public class ApiGatewayRouter {
 
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder builder) {

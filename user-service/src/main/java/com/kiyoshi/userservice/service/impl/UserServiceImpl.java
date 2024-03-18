@@ -55,24 +55,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUser(String id) {
         // validates user exist
-        Optional<User> existingUser = repository.findActiveById(id);
-        if(existingUser.isEmpty()) {
-            throw new ResourceNotFoundException("User not found", "id", id);
-        }
-
-        return mapUserToDto(existingUser.get());
+        User user = validateUser(id);
+        return mapUserToDto(user);
     }
 
     @Override
     public UserDto updateUser(String id, UserDto userDto) {
         // validates user exist
-        Optional<User> existingUser = repository.findActiveById(id);
-        if(existingUser.isEmpty()) {
-            throw new ResourceNotFoundException("User not found", "id", id);
-        }
+        User user = validateUser(id);
 
         // update user
-        userDto.setId(existingUser.get().getId());
+        userDto.setId(user.getId());
         userDto.setRole(Role.USER);
         User updatedUser = mapDtoToUser(userDto, true);
 
@@ -93,14 +86,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public DeleteResponse deleteUser(String id) {
         // validates user exist
-        Optional<User> existingUser = repository.findActiveById(id);
-        if(existingUser.isEmpty()) {
-            throw new ResourceNotFoundException("User not found", "id", id);
-        }
+        User user = validateUser(id);
 
-        User deletedUser = existingUser.get();
-        deletedUser.setIsActive(false);
-        repository.save(deletedUser);
+        user.setIsActive(false);
+        repository.save(user);
 
         return DeleteResponse.builder()
                 .message("User deleted successfully")
@@ -108,6 +97,41 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Override
+    public UserDto reactivateUser(String id) {
+        Optional<User> found = repository.findById(id);
+        if(found.isEmpty()){
+            throw new ResourceNotFoundException("User", "id", id);
+        }
+
+        if(!found.get().getRole().name().equals(Role.USER.name())) {
+            throw new ResourceNotFoundException("User", "id", id);
+        }
+
+        User reactivatedUser = found.get();
+        reactivatedUser.setIsActive(true);
+        repository.save(reactivatedUser);
+
+        return mapUserToDto(reactivatedUser);
+    }
+
+    private User validateUser(String id) {
+        // user db
+        Optional<User> found = repository.findById(id);
+        if(found.isPresent()) {
+            User user = found.get();
+
+            // user is active
+            // user role: USER
+            if(!user.getIsActive() || !user.getRole().name().equals(Role.USER.name())) {
+                throw new ResourceNotFoundException("User", "id", id);
+            }
+
+            return user;
+        }
+
+        throw new ResourceNotFoundException("User", "id", id);
+    }
 
     private User mapDtoToUser(UserDto userDto, Boolean isActive) {
         return User.builder()

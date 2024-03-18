@@ -17,12 +17,15 @@ public class AuthController {
     private AuthService service;
 
     @PostMapping("/generateToken")
-    public ResponseEntity<TokenResponse> generateToken(@Valid @RequestBody TokenRequest request) {
-        return new ResponseEntity<>(service.generateToken(request), HttpStatus.OK);
+    public ResponseEntity<TokenResponse> loginUser(@Valid @RequestBody TokenRequest request) {
+        return new ResponseEntity<>(service.loginUser(request), HttpStatus.OK);
     }
 
     @GetMapping("/validateToken")
-    public ResponseEntity<Boolean> validateToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-        return new ResponseEntity<>(service.validateToken(authHeader), HttpStatus.OK);
+    public ResponseEntity<TokenResponse> validateToken(@RequestHeader HttpHeaders headers) {
+        String authorizationHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
+
+        assert authorizationHeader != null;
+        return new ResponseEntity<>(service.validateToken(authorizationHeader.substring(7)), HttpStatus.OK);
     }
 }

@@ -23,7 +23,7 @@ public class BookController {
         return new ResponseEntity<>(service.createBook(book), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/get/{id}")
     public ResponseEntity<BookDto> getBook(@PathVariable String id) {
         return new ResponseEntity<>(service.getBook(id), HttpStatus.FOUND);
     }

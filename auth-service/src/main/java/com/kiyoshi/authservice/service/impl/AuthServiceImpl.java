@@ -2,34 +2,30 @@ package com.kiyoshi.authservice.service.impl;
 
 import com.kiyoshi.authservice.entity.TokenRequest;
 import com.kiyoshi.authservice.entity.TokenResponse;
-import com.kiyoshi.authservice.entity.User;
-import com.kiyoshi.authservice.exception.BadRequestException;
+import com.kiyoshi.authservice.entity.collection.User;
 import com.kiyoshi.authservice.exception.ResourceNotFoundException;
-import com.kiyoshi.authservice.repository.AuthRepository;
+import com.kiyoshi.authservice.repository.UserRepository;
 import com.kiyoshi.authservice.service.AuthService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.ws.rs.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 @Service
 public class AuthServiceImpl implements AuthService {
     @Autowired
-    private AuthRepository repository;
+    private UserRepository repository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -37,106 +33,113 @@ public class AuthServiceImpl implements AuthService {
     @Value("${jwt-secret.key}")
     private String SECRET_KEY;
 
-
-    @Value("${jwt-secret.expiration-time}")
-    private Long EXPIRATION_TIME;
+    @Value("${jwt-secret.minutes-expiration-time}")
+    private Long MINUTES_EXPIRATION;
 
     @Override
-    public TokenResponse generateToken(TokenRequest request) {
-        // verify user exist
-        Optional<User> existingUser = repository.findUserByEmail(request.getEmail());
-        if(existingUser.isEmpty()){
-            throw new ResourceNotFoundException("User not found", "email", request.getEmail());
+    public TokenResponse loginUser(TokenRequest request) {
+        // check if user exists
+        Optional<User> found = repository.findUserByEmail(request.getEmail());
+        if(found.isEmpty()) {
+            throw new ResourceNotFoundException("User", "email", request.getEmail());
         }
 
-        // verify the password
-        if(!passwordEncoder.matches(request.getPassword(), existingUser.get().getPassword())) {
+        // validate password match
+        if(!passwordEncoder.matches(request.getPassword(), found.get().getPassword())) {
             throw new BadRequestException("Invalid credentials");
         }
 
-        // generate token
-        String token = generateToken(existingUser.get());
+        String token = createToken(found.get());
 
-        // return
         return TokenResponse.builder()
+                .message("User authenticated successfully")
                 .token(token)
+                .statusCode(HttpStatus.OK)
                 .build();
     }
 
     @Override
-    public Boolean validateToken(String authHeader) {
-        // get token
-        String token = authHeader.substring(7);
-
-        // get email from jwt
+    public TokenResponse validateToken(String token) {
         String email = getEmailFromToken(token);
 
-        // verify user exist
-        Optional<User> existingUser = repository.findUserByEmail(email);
-        if(existingUser.isEmpty()){
-            throw new ResourceNotFoundException("User not found", "email", email);
+        // check if user exists
+        Optional<User> found = repository.findUserByEmail(email);
+        if(found.isEmpty()) {
+            throw new ResourceNotFoundException("User", "email", email);
         }
 
-        // validate token
-        return isTokenValid(token, existingUser.get());
+        // user is not deleted
+        if(!found.get().getIsActive()) {
+            throw new ResourceNotFoundException("User", "email", email);
+        }
+
+        //still valid
+        TokenResponse response = new TokenResponse();
+        response.setToken(null);
+
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(getSecretKey())
+                    .build()
+                    .parseClaimsJws(token);
+            response.setMessage("Authenticated successfully");
+            response.setStatusCode(HttpStatus.OK);
+            response.setToken(token);
+        } catch (ExpiredJwtException e) {
+            response.setMessage("Jwt expired");
+            response.setStatusCode(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            response.setMessage("Internal Server Error -> Error: " + e);
+            response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return response;
     }
 
-    public String generateToken(User user) {
-        return generateToken(new HashMap<>(), user);
-    }
+    public String createToken(User user) {
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + MINUTES_EXPIRATION * 60000); // Convert minutes to milliseconds
 
-    private String generateToken(Map<String,Object> extraClaims, User user) {
-        return Jwts
-                .builder()
-                .claims(extraClaims)
-                .claim("username", user.getName())
-                .subject(user.getEmail())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+1000*60*24))
-                .signWith(getKey())
-                .header()
-                .add("typ", "JWT")
-                .and()
+        return Jwts.builder()
+                .setSubject(user.getEmail())
+                .claim("role", user.getRole().name())
+//                .claim("authorities", user.getAuthorities())
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(getSecretKey())
                 .compact();
     }
 
-    private SecretKey getKey() {
-        byte[] keyBytes=Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
     public String getEmailFromToken(String token) {
-        return getClaim(token, Claims::getSubject);
-    }
-
-    public boolean isTokenValid(String token, User user) {
-        final String email=getEmailFromToken(token);
-        return (email.equals(user.getEmail()) && !isTokenExpired(token));
-    }
-
-    private Claims getAllClaims(String token)
-    {
-        return Jwts
-                .parser()
-                .verifyWith(getKey())
+        return Jwts.parserBuilder()
+                .setSigningKey(getSecretKey())
                 .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
-    public <T> T getClaim(String token, Function<Claims,T> claimsResolver)
-    {
-        final Claims claims=getAllClaims(token);
-        return claimsResolver.apply(claims);
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("role", String.class);
     }
 
-    private Date getExpiration(String token)
-    {
-        return getClaim(token, Claims::getExpiration);
-    }
+//    public List<String> getAuthoritiesFromToken(String token) {
+//        Claims claims = Jwts.parserBuilder()
+//                .setSigningKey(getSecretKey())
+//                .build()
+//                .parseClaimsJws(token)
+//                .getBody();
+//        return claims.get("authorities", List.class);
+//    }
 
-    private boolean isTokenExpired(String token)
-    {
-        return getExpiration(token).before(new Date());
+    private SecretKey getSecretKey() {
+        // We are using a fixed key here, but you should ideally load it from a secure location
+        byte[] decodedKey = Base64.getDecoder().decode(SECRET_KEY);
+        return Keys.hmacShaKeyFor(decodedKey);
     }
 }

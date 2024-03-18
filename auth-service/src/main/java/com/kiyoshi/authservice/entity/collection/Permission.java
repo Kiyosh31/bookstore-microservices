@@ -1,4 +1,4 @@
-package com.kiyoshi.userservice.entity.collection;
+package com.kiyoshi.authservice.entity.collection;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
