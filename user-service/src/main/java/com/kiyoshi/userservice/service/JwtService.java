@@ -4,9 +4,9 @@ import com.kiyoshi.userservice.entity.collection.User;
 
 public interface JwtService {
 
-    String generateToken(String username);
+    String generateToken(User user);
 
     Boolean validateToken(String token, User user);
 
-    String extractUsername(String token);
+    String extractEmail(String token);
 }

@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Invalid credentials");
         }
 
-        String token = jwtService.generateToken(found.get().getName());
+        String token = jwtService.generateToken(found.get());
 
         return TokenResponse.builder()
                 .message("User authenticated successfully")
@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public TokenResponse validateToken(String token) {
-        String email = jwtService.extractUsername(token);
+        String email = jwtService.extractEmail(token);
 
         // check if user exists
         Optional<User> found = repository.findUserByEmail(email);
@@ -104,6 +104,7 @@ public class UserServiceImpl implements UserService {
         userDto.setId(null);
         String encodedPassword = passwordEncoder.encode(userDto.getPassword());
         userDto.setPassword(encodedPassword);
+        userDto.setRole(generateRole(userDto.getRole()));
         userDto.setPermissions(getPermissions(userDto.getRole().toUpperCase()));
 
         User newUser = mapDtoToUser(userDto, true);
@@ -191,6 +192,7 @@ public class UserServiceImpl implements UserService {
                 .email(userDto.getEmail())
                 .password(userDto.getPassword())
                 .permissions(userDto.getPermissions())
+                .role(userDto.getRole())
                 .card(userDto.getCard())
                 .isActive(isActive)
                 .build();
@@ -202,6 +204,7 @@ public class UserServiceImpl implements UserService {
                 .name(user.getName())
                 .email(user.getEmail())
                 .password(user.getPassword())
+                .role(user.getRole())
                 .permissions(user.getPermissions())
                 .card(user.getCard())
                 .build();
@@ -223,6 +226,22 @@ public class UserServiceImpl implements UserService {
                 .description("User updated successfully")
                 .createdAt(LocalDateTime.now())
                 .build();
+    }
+
+    private String generateRole(String role) {
+        switch (role) {
+            case "user" -> {
+                return Role.USER.name();
+            }
+            case "admin" -> {
+                return Role.ADMIN.name();
+            }
+            case "god" -> {
+                return Role.GOD.name();
+            }
+        }
+
+        return role;
     }
 
     private Set<Permission> getPermissions(String role) {

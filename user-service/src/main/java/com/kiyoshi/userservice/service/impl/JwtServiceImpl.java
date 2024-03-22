@@ -26,21 +26,21 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public Boolean validateToken(String token, User user) {
-        final String username = extractUsername(token);
-        return (username.equals(user.getName()) && !isTokenExpired(token));
+        final String email = extractEmail(token);
+        return (email.equals(user.getEmail()) && !isTokenExpired(token));
     }
 
     @Override
-    public String generateToken(String username) {
+    public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", "");
-        claims.put("permissions", "");
+        claims.put("role", user.getRole());
+        claims.put("permissions", user.getPermissions());
 
-        return createToken(claims, username);
+        return createToken(claims, user.getEmail());
     }
 
     @Override
-    public String extractUsername(String token) {
+    public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -66,13 +66,14 @@ public class JwtServiceImpl implements JwtService {
         return extractExpiration(token).before(new Date());
     }
 
-    public String createToken(Map<String, Object> claims, String username) {
+    public String createToken(Map<String, Object> claims, String email) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(username)
+                .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION * 60000))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public Key getSignKey() {

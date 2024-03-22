@@ -22,6 +22,8 @@ public class User {
 
     private int card;
 
+    private String role;
+
     private Set<Permission> permissions;
 
     private Boolean isActive;
