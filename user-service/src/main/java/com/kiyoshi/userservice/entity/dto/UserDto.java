@@ -1,12 +1,15 @@
 package com.kiyoshi.userservice.entity.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kiyoshi.userservice.entity.collection.Permission;
 import com.kiyoshi.userservice.entity.collection.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.Set;
 
 @Data
 @Builder
@@ -27,5 +30,8 @@ public class UserDto {
     @NotNull(message = "Missing card")
     private int card;
 
-    private Role role;
+    @NotNull(message = "Missing role")
+    private String role;
+
+    private Set<Permission> permissions;
 }

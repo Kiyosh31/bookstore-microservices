@@ -5,6 +5,8 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Set;
+
 @Data
 @Builder
 @Document(collection = "user")
@@ -20,7 +22,7 @@ public class User {
 
     private int card;
 
-    private Role role;
+    private Set<Permission> permissions;
 
     private Boolean isActive;
 }

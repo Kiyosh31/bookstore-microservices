@@ -1,4 +1,4 @@
-package com.kiyoshi.authservice.entity;
+package com.kiyoshi.userservice.entity.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
